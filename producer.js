@@ -16,20 +16,18 @@ async function init() {
   rl.prompt();
   rl.on("line", async function (line) {
     const [riderName, location] = line.split(" ");
-    await producer
-      .send({
-        topic: "rider-updates",
-        messages: [
-          {
-            partition: location.toLowerCase() === "north" ? 0 : 1,
-            key: "location-updates",
-            value: JSON.stringify({ name: riderName, loc: location }),
-          },
-        ],
-      })
-      .on("close", async () => {
-        await producer.disconnect();
-      });
+    await producer.send({
+      topic: "rider-updates",
+      messages: [
+        {
+          partition: location.toLowerCase() === "north" ? 0 : 1,
+          key: "location-updates",
+          value: JSON.stringify({ name: riderName, loc: location }),
+        },
+      ],
+    });
+  }).on("close", async () => {
+    await producer.disconnect();
   });
 }
 init().catch((e) => console.error(`[producer] ${e.message}`, e));
